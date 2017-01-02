@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "groupbyinput"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "school"
+        }
+    },
+    "id": "f2a55b74-f937-485b-a983-8d5fec488da2",
+    "version": "5.2.0.0"
+}

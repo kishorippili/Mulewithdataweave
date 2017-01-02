@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <flow name="create_porm_file_Flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace xsi http://www.w3.org/2001/XMLSchema-instance
+%var modelVersion = "4.0.0"
+---
+{
+    project: {
+
+      modelVersion: modelVersion,
+    groupId: "com.mycompany",
+    version: "1.0.0-SNAPSHOT",
+    packaging: "mule",
+    name: "Mavenito",
+
+    properties: {
+        "project.build.sourceEncoding": "UTF-8",
+      "project.reporting.outputEncoding": "UTF-8",
+      "mule.version": "3.6.0",
+      "mule.tools.version": "1.0"
+    },
+
+    build: {
+        plugins: {
+          plugin: {
+            groupId: "org.mule.tools.maven",
+          artifactId: "mule-app-maven-plugin",
+          version: "\${mule.tools.version}",
+          extensions: true,
+          configuration: {
+                        copyToAppsDirectory: true
+          }
+        },
+        plugin: {
+          artifactId: "maven-assembly-plugin",
+                    version: "2.2.1",
+                  configuration: {
+                            descriptorRefs: {
+                                descriptorRef: "project"
+                }
+             }
+        },
+        plugin: {
+          groupId: "org.codehaus.mojo",
+                     artifactId: "build-helper-maven-plugin",
+                    version:1.7,
+                    executions: {
+                            execution: {
+                                id: "add-resource",
+                                phase: "generate-resources",
+                                goals: {
+                                    goal: "add-resource"
+                                },
+                                configuration: {
+                                        resources: {
+                                            resource: {
+                                                directory: "src/main/app/"
+                                            },
+                                            resource: {
+                                                directory: "mappings/"
+                      }
+                                    }
+                                }
+                            },
+                    configuration: {
+                            resources: {
+                 resource: {
+                         directory: "src/main/api/"
+                                    }
+              }
+          }
+        }
+      },
+      plugin: {
+          groupId: "org.apache.maven.plugins",
+        artifcatId: "maven-dependency-plugin",
+        version: "2.4",
+        executions: {
+              execution: {
+                  id: "copy-clover-plugins",
+              phase: "validate",
+              goals: {
+                  goal: "copy"
+              },
+              configuration: {
+                 overWriteReleases: true,
+                 overWriteSnapshots: true,
+                 overWriteIfNewer: true,
+                 stripVersion: true,
+                 outputDirectory: "\${project.build.testOutputDirectory}"
+              },
+              artifactItems: {
+                                artifactItem: {
+                           groupId: "com.cloveretl",
+                        artifactId: "cloveretl-engine",
+                                        version: "\${mule.version}",
+                                        type: "zip"
+                    }
+                 }
+              }
+        }
+      },
+      plugin: {
+          artifactId: "maven-antrun-plugin",
+                version: "1.7",
+        executions: {
+               execution: {
+                        phase: "compile",
+                        configuration: {
+                            tasks: {
+                                    unzip @(dest: "\${project.build.testOutputDirectory}",
+                          src: "\${project.build.testOutputDirectory}/cloveretl-engine.zip"): {}
+                        }
+           },
+           goals: {
+                            goal: "run"
+           }
+         }
+           }
+      }
+    }
+  },
+
+  dependencies: {
+    dependency: {
+        groupId: "com.mulesoft.muleesb",
+      artifactId: "mule-core-ee",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "com.mulesoft.muleesb.modules",
+      artifactId: "mule-module-spring-config-ee",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.transports",
+      artifactId: "mule-transport-file",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.transports",
+      artifactId: "mule-transport-http",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "com.mulesoft.muleesb.transports",
+      artifactId: "mule-transport-jdbc-ee",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "com.mulesoft.muleesb.transports",
+      artifactId: "mule-transport-jms-ee",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.transports",
+      artifactId: "mule-transport-vm",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.modules",
+      artifactId: "mule-module-scripting",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.modules",
+      artifactId: "mule-module-xml",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "org.mule.tests",
+      artifactId: "mule-tests-functional",
+      version: "\${mule.version}",
+      scope: "provided"
+    },
+    dependency: {
+        groupId: "com.cloveretl",
+      artifactId: "cloveretl-engine",
+      version: "\${mule.version}",
+      scope: "provided"
+    }
+    },
+
+  repositories: {
+      repository: {
+        id: "Central",
+      name: "Central",
+      url: "http://repo1.maven.org/maven2/",
+      layout: "default"
+    },
+    repository: {
+        id: "mulesoft-releases",
+      name: "MuleSoft Releases Repository",
+      url: "http://repository.mulesoft.org/releases/",
+      layout: "default"
+    },
+    repository: {
+        id: "mulesoft-snapshots",
+      name: "MuleSoft Snapshots Repository",
+      url: "http://repository.mulesoft.org/snapshots/",
+      layout: "default"
+    }
+  },
+
+
+  pluginRepositories: {
+    pluginRepository: {
+                id: "mulesoft-release",
+                name: "mulesoft release repository",
+                layout: "default",
+        url: "http://repository.mulesoft.org/releases/",
+                 snapshots: {
+                enabled: false
+                }
+    }
+  }
+
+ }
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

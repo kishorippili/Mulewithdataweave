@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <flow name="customtypeandpojoFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+        <dw:transform-message metadata:id="f3e4dd27-d015-4875-a967-630a00aa80e1" doc:name="Transform Message">
+            <dw:input-payload doc:sample="customtype.json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%type currency = :string {format: "###.00"}
+%type data = :object {class: "com.mulesoft.com.UserInput"}
+---
+{
+	
+	data:payload map {
+		type: $.type,
+		price:$.price as :number as :currency,
+		label: upper $.label replace /(YESTERDAY)/ with "YESDAY",
+		author:$.author
+		
+	} orderBy $.type distinctBy $ 
+	filter ($.type =="CD") 
+
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

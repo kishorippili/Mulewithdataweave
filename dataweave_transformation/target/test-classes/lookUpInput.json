@@ -1,0 +1,32 @@
+ [
+      {
+        "company_name" : "Emcure",
+        "company_address" : "MCity",
+        "company_city" : "Bhogapuram",
+        "company_state": "al",
+        "company_zip": "Mine"
+        
+      },
+      {
+        "company_name" : "Embio",
+        "company_address" : "Mahad",
+        "company_city" : "Raigad",
+        "company_state": "ct",
+        "company_zip": "Nine"
+      },
+      {
+       "company_name" : "MSS",
+        "company_address" : "MCity",
+        "company_city" : "Bhogapuram",
+        "company_state": "az",
+        "company_zip": "Mine"
+      },
+      {
+        "company_name" : "JVA",
+        "company_address" : "Andur",
+        "company_city" : "Andur",
+        "company_state": "ca",
+        "company_zip": "Mine"
+      }
+    ]
+}
